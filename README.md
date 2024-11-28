@@ -16,7 +16,7 @@ A collection of quick multiplayer games perfect for work breaks, built with Node
 ## Available Games
 
 - Tic-tac-toe: The classic game of X's and O's
-- Rock, Paper, Scissors: Quick matches of the timeless hand game
+- Connect 4: Strategic four-in-a-row game
 
 More games are currently in development! Stay tuned for updates.
 

@@ -23,7 +23,7 @@
     "socket.io",
     "browser-games",
     "tic-tac-toe",
-    "rock-paper-scissors"
+    "connect-4"
   ],
   "repository": {
     "type": "git",
