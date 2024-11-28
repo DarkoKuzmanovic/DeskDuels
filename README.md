@@ -28,6 +28,10 @@ More games are currently in development! Stay tuned for updates.
 ```bash
 npm install
 ```
+4. (Optional) Create your local configuration:
+   - Copy `package.local.template.json` to `package.local.json`
+   - Modify the settings in `package.local.json` according to your needs
+   - This file will not be committed to Git
 
 ## Running the Game
 

@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "sync": "scp -r $(ls -A | grep -v 'node_modules\\|.git') your-username@your-server:/path/to/destination/"
+  }
+}
