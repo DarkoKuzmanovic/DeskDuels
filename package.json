@@ -1,0 +1,39 @@
+{
+  "name": "deskduels",
+  "version": "1.0.0",
+  "description": "A collection of quick multiplayer games for work breaks",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "sync": "scp -r $(ls -A | grep -v 'node_modules\\|.git') darko@37.97.245.230:/var/www/tictactoe/"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  },
+  "author": {
+    "name": "Darko Kuzmanovic",
+    "url": "https://github.com/darkokuzmanovic"
+  },
+  "license": "MIT",
+  "keywords": [
+    "games",
+    "multiplayer",
+    "real-time",
+    "socket.io",
+    "browser-games",
+    "tic-tac-toe",
+    "rock-paper-scissors"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/darkokuzmanovic/deskduels"
+  },
+  "bugs": {
+    "url": "https://github.com/darkokuzmanovic/deskduels/issues"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "private": false
+}

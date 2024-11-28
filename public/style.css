@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+:root {
+    --primary-color: #4F46E5;
+    --primary-hover: #4338CA;
+    --secondary-color: #10B981;
+    --secondary-hover: #059669;
+    --background: #F9FAFB;
+    --surface: #FFFFFF;
+    --text-primary: #111827;
+    --text-secondary: #4B5563;
+    --border: #E5E7EB;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    
+    /* Game-specific colors */
+    --player1-color: #EF4444;
+    --player1-border: #DC2626;
+    --player2-color: #FBBF24;
+    --player2-border: #F59E0B;
+    --board-bg: #2196F3;
+    --hover-bg: #F3F4F6;
+}
+
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--text-primary);
+}
+
+.container {
+    text-align: center;
+    padding: 2rem;
+    max-width: 800px;
+    width: 100%;
+}
+
+h1 {
+    font-weight: 600;
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.status {
+    margin-bottom: 1.5rem;
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.status {
+    text-align: center;
+    font-size: 1.2em;
+    margin: 10px 0;
+    padding: 10px;
+    color: #8b4513;
+    font-weight: bold;
+}
+
+/* Common board styles */
+.board {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0 auto;
+    background-color: var(--board-bg);
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+}
+
+/* Tic Tac Toe specific styles */
+.tictactoe .board {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 400px;
+}
+
+.tictactoe .cell {
+    aspect-ratio: 1;
+    background-color: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tictactoe .cell:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--primary-color);
+    background-color: var(--hover-bg);
+}
+
+.tictactoe .cell.x {
+    color: var(--player1-color);
+}
+
+.tictactoe .cell.o {
+    color: var(--player2-color);
+}
+
+/* Connect 4 specific styles */
+.connect4 .board {
+    grid-template-columns: repeat(7, 1fr);
+    max-width: 700px;
+    background-color: var(--board-bg);
+}
+
+.connect4 .cell {
+    aspect-ratio: 1;
+    background-color: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.connect4 .cell:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.connect4 .cell.player1 {
+    background-color: var(--player1-color);
+    border-color: var(--player1-border);
+}
+
+.connect4 .cell.player2 {
+    background-color: var(--player2-color);
+    border-color: var(--player2-border);
+}
+
+.connect4 .cell.hover {
+    background-color: var(--hover-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* Player form styles */
+.player-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.player-form input {
+    padding: 0.75rem 1rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 0.5rem;
+    width: 100%;
+    max-width: 300px;
+    transition: all 0.2s;
+}
+
+.player-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Button styles */
+.button-container {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.game-btn {
+    padding: 0.75rem 1.5rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.game-btn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.game-btn:active {
+    transform: translateY(0);
+}
+
+.home-btn {
+    background-color: var(--secondary-color);
+}
+
+.home-btn:hover {
+    background-color: var(--secondary-hover);
+}
+
+.play-again-btn {
+    background-color: var(--primary-color);
+}
+
+.play-again-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Game selection styles */
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+    max-width: 800px;
+    width: 100%;
+}
+
+.game-card {
+    background: var(--surface);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border);
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.game-card h2 {
+    color: var(--text-primary);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.game-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
