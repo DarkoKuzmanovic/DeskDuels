@@ -25,9 +25,11 @@ More games are currently in development! Stay tuned for updates.
 1. Make sure you have Node.js installed
 2. Clone this repository
 3. Install dependencies:
-```bash
-npm install
-```
+
+    ```bash
+    npm install
+    ```
+
 4. (Optional) Create your local configuration:
    - Copy `package.local.template.json` to `package.local.json`
    - Modify the settings in `package.local.json` according to your needs
@@ -36,9 +38,10 @@ npm install
 ## Running the Game
 
 1. Start the server:
-```bash
-npm start
-```
+
+    ```bash
+    npm start
+    ```
 
 2. Open your browser and navigate to `http://localhost:3000`
 
