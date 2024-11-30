@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
 :root {
+    /* Light theme variables */
     --primary-color: #4F46E5;
     --primary-hover: #4338CA;
     --secondary-color: #10B981;
@@ -21,6 +22,18 @@
     --player2-border: #F59E0B;
     --board-bg: #2196F3;
     --hover-bg: #F3F4F6;
+}
+
+[data-theme="dark"] {
+    --background: #1F2937;
+    --surface: #374151;
+    --text-primary: #F9FAFB;
+    --text-secondary: #D1D5DB;
+    --border: #4B5563;
+    --hover-bg: #4B5563;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
 }
 
 /* Reset and base styles */
@@ -377,4 +390,31 @@ h1 {
     align-items: center;
     gap: 1rem;
     margin-top: 2rem;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--hover-bg);
+}
+
+.theme-toggle svg {
+    width: 1.25rem;
+    height: 1.25rem;
 }
