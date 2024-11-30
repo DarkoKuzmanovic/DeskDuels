@@ -8,6 +8,7 @@ app.use(express.static("public"));
 // Game rooms for different games
 const tictactoeRooms = new Map();
 const connect4Rooms = new Map();
+const mancalaRooms = new Map();
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
@@ -151,6 +152,176 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Mancala game logic
+  socket.on("joinGame", (gameType) => {
+    if (gameType === "mancala") {
+      let roomId = null;
+
+      // Find an available Mancala room
+      for (const [id, room] of mancalaRooms.entries()) {
+        if (room.players.length === 1) {
+          roomId = id;
+          break;
+        }
+      }
+
+      // Create new room if none available
+      if (!roomId) {
+        roomId = "mancala_" + Math.random().toString(36).substring(7);
+        mancalaRooms.set(roomId, {
+          players: [],
+          pits: Array(14).fill(4), // Initialize all pits with 4 stones
+          currentPlayer: "A",
+        });
+        // Set stores to 0
+        const room = mancalaRooms.get(roomId);
+        room.pits[6] = 0;  // Player A's store
+        room.pits[13] = 0; // Player B's store
+      }
+
+      const room = mancalaRooms.get(roomId);
+      const playerSide = room.players.length === 0 ? "A" : "B";
+      room.players.push({ id: socket.id, side: playerSide });
+      socket.join(roomId);
+
+      socket.emit("gameJoined", {
+        side: playerSide,
+        roomId: roomId,
+      });
+
+      if (room.players.length === 2) {
+        io.to(roomId).emit("gameStart", {
+          currentPlayer: room.currentPlayer,
+          pits: room.pits,
+        });
+      }
+    }
+  });
+
+  socket.on("makeMove", ({ pitIndex }) => {
+    // Find the room this socket is in
+    let currentRoom = null;
+    let roomId = null;
+
+    for (const [id, room] of mancalaRooms.entries()) {
+      const player = room.players.find(p => p.id === socket.id);
+      if (player) {
+        currentRoom = room;
+        roomId = id;
+        break;
+      }
+    }
+
+    if (!currentRoom) return;
+
+    const player = currentRoom.players.find(p => p.id === socket.id);
+    if (player.side !== currentRoom.currentPlayer) return;
+
+    // Validate move
+    if (currentRoom.pits[pitIndex] === 0) return;
+    if (player.side === "A" && (pitIndex < 0 || pitIndex > 5)) return;
+    if (player.side === "B" && (pitIndex < 7 || pitIndex > 12)) return;
+
+    // Perform the move
+    let stones = currentRoom.pits[pitIndex];
+    console.log(`Moving ${stones} stones from pit ${pitIndex}`);
+    currentRoom.pits[pitIndex] = 0;
+    let lastPitIndex = pitIndex;
+
+    // Distribute stones counterclockwise
+    while (stones > 0) {
+      // Calculate next pit in counterclockwise direction
+      if (lastPitIndex >= 0 && lastPitIndex <= 5) {
+        // Moving right in bottom row
+        lastPitIndex++;
+      } else if (lastPitIndex === 6) {
+        // From A's store to top row
+        lastPitIndex = 7;
+      } else if (lastPitIndex >= 7 && lastPitIndex <= 11) {
+        // Moving right in top row
+        lastPitIndex++;
+      } else if (lastPitIndex === 12) {
+        // From rightmost top pit to B's store
+        lastPitIndex = 13;
+      } else if (lastPitIndex === 13) {
+        // From B's store to bottom row
+        lastPitIndex = 0;
+      }
+
+      // Skip opponent's store
+      if ((player.side === "A" && lastPitIndex === 13) ||
+          (player.side === "B" && lastPitIndex === 6)) {
+        continue;
+      }
+
+      console.log(`Placing stone in pit ${lastPitIndex}`);
+      // Add stone to the pit and decrement stones
+      currentRoom.pits[lastPitIndex]++;
+      stones--;
+    }
+
+    // Check for capture
+    if (currentRoom.pits[lastPitIndex] === 1) {
+      console.log(`Last stone landed in pit ${lastPitIndex} with 1 stone`);
+      const isPlayerSide = (player.side === "A" && lastPitIndex >= 0 && lastPitIndex <= 5) ||
+                          (player.side === "B" && lastPitIndex >= 7 && lastPitIndex <= 12);
+      console.log(`Is player side: ${isPlayerSide}, Player: ${player.side}`);
+      if (isPlayerSide) {
+        // Calculate opposite index based on the ending position
+        const oppositeIndex = lastPitIndex <= 5 ? lastPitIndex + 7 : lastPitIndex - 7;
+        console.log(`Checking capture: Last pit ${lastPitIndex}, opposite pit ${oppositeIndex}`);
+        console.log(`Stones in opposite pit: ${currentRoom.pits[oppositeIndex]}`);
+        if (currentRoom.pits[oppositeIndex] > 0) {
+          const playerStore = player.side === "A" ? 6 : 13;
+          const capturedStones = currentRoom.pits[oppositeIndex] + 1;
+          currentRoom.pits[playerStore] += capturedStones;
+          currentRoom.pits[oppositeIndex] = 0;
+          currentRoom.pits[lastPitIndex] = 0;
+          console.log(`Captured ${capturedStones} stones to store ${playerStore}`);
+        }
+      }
+    } else {
+      console.log(`Last stone landed in pit ${lastPitIndex} with ${currentRoom.pits[lastPitIndex]} stones`);
+    }
+
+    // Check if game is over
+    const isGameOver = checkMancalaGameOver(currentRoom.pits);
+    if (isGameOver) {
+      // Move remaining stones to respective stores
+      for (let i = 0; i <= 5; i++) {
+        currentRoom.pits[6] += currentRoom.pits[i];
+        currentRoom.pits[i] = 0;
+      }
+      for (let i = 7; i <= 12; i++) {
+        currentRoom.pits[13] += currentRoom.pits[i];
+        currentRoom.pits[i] = 0;
+      }
+
+      // Determine winner
+      const winner = currentRoom.pits[6] > currentRoom.pits[13] ? "A" :
+                    currentRoom.pits[6] < currentRoom.pits[13] ? "B" : null;
+
+      io.to(roomId).emit("gameOver", {
+        winner: winner,
+        pits: currentRoom.pits
+      });
+      
+      // Clean up the room
+      mancalaRooms.delete(roomId);
+    } else {
+      // Check for extra turn (last stone in player's store)
+      const playerStore = player.side === "A" ? 6 : 13;
+      if (lastPitIndex !== playerStore) {
+        currentRoom.currentPlayer = currentRoom.currentPlayer === "A" ? "B" : "A";
+      }
+
+      io.to(roomId).emit("gameState", {
+        currentPlayer: currentRoom.currentPlayer,
+        pits: currentRoom.pits
+      });
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
 
@@ -167,6 +338,15 @@ io.on("connection", (socket) => {
       if (room.players.includes(socket.id)) {
         io.to(roomId).emit("playerDisconnected");
         connect4Rooms.delete(roomId);
+      }
+    }
+
+    // Handle Mancala disconnection
+    for (const [roomId, room] of mancalaRooms.entries()) {
+      const player = room.players.find(p => p.id === socket.id);
+      if (player) {
+        io.to(roomId).emit("playerDisconnected");
+        mancalaRooms.delete(roomId);
       }
     }
   });
@@ -265,6 +445,30 @@ function checkConnect4Winner(board) {
 
 function isConnect4BoardFull(board) {
   return board[0].every((cell) => cell !== null);
+}
+
+// Helper function for Mancala
+function checkMancalaGameOver(pits) {
+  let aSideEmpty = true;
+  let bSideEmpty = true;
+
+  // Check A's side (pits 0-5)
+  for (let i = 0; i <= 5; i++) {
+    if (pits[i] > 0) {
+      aSideEmpty = false;
+      break;
+    }
+  }
+
+  // Check B's side (pits 7-12)
+  for (let i = 7; i <= 12; i++) {
+    if (pits[i] > 0) {
+      bSideEmpty = false;
+      break;
+    }
+  }
+
+  return aSideEmpty || bSideEmpty;
 }
 
 const PORT = process.env.PORT || 3001;

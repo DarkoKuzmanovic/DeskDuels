@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Mancala</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container mancala">
+        <h1>Multiplayer Mancala</h1>
+        <div id="game-status" class="status">Waiting for opponent...</div>
+        
+        <div id="mancala-board" class="mancala-board">
+            <div class="mancala store-b">0</div>
+            <div class="pits-container">
+                <div class="pits row-b">
+                    <div class="pit" data-index="7">4</div>
+                    <div class="pit" data-index="8">4</div>
+                    <div class="pit" data-index="9">4</div>
+                    <div class="pit" data-index="10">4</div>
+                    <div class="pit" data-index="11">4</div>
+                    <div class="pit" data-index="12">4</div>
+                </div>
+                <div class="pits row-a">
+                    <div class="pit" data-index="0">4</div>
+                    <div class="pit" data-index="1">4</div>
+                    <div class="pit" data-index="2">4</div>
+                    <div class="pit" data-index="3">4</div>
+                    <div class="pit" data-index="4">4</div>
+                    <div class="pit" data-index="5">4</div>
+                </div>
+            </div>
+            <div class="mancala store-a">0</div>
+        </div>
+
+        <div class="button-container">
+            <button id="leave-game" class="game-btn home-btn">Back to Home</button>
+            <div id="player-info" class="player-info">
+                <span>You are: <span id="player-side">Spectator</span></span>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="mancala.js"></script>
+</body>
+</html>
