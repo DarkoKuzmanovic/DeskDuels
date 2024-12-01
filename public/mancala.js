@@ -22,12 +22,38 @@ gameState.pits[13] = 0; // Player B's store
 // Event Listeners
 document.querySelectorAll('.pit').forEach(pit => {
     pit.addEventListener('click', handlePitClick);
+    
+    // Add touch events with better mobile handling
+    pit.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevent double-firing of click events
+        pit.classList.add('touched');
+    }, { passive: false });
+    
+    pit.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        pit.classList.remove('touched');
+        handlePitClick(e);
+    }, { passive: false });
+    
+    pit.addEventListener('touchcancel', (e) => {
+        pit.classList.remove('touched');
+    });
 });
 
 leaveGameButton.addEventListener('click', () => {
     socket.emit('leaveGame');
     window.location.href = '/';
 });
+
+// Prevent zooming on double tap
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, false);
 
 // Socket event handlers
 socket.on('connect', () => {

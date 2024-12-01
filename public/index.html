@@ -17,38 +17,56 @@
         <span class="theme-text">Toggle Theme</span>
     </button>
     <div class="container">
-        <h1>Desk Duels</h1>
-        <div class="game-grid">
+        <h1>Welcome to Desk Duels</h1>
+        <p class="subtitle">Choose a game to play</p>
+        
+        <div class="games-grid">
             <div class="game-card">
                 <h2>Tic Tac Toe</h2>
-                <p>Classic game of X's and O's. First to get three in a row wins!</p>
+                <p>Classic game of X's and O's</p>
                 <div class="button-container">
                     <a href="/tictactoe.html" class="game-btn">Play Now</a>
                 </div>
             </div>
+            
             <div class="game-card">
                 <h2>Connect 4</h2>
-                <p>Drop tokens to connect four in a row vertically, horizontally, or diagonally!</p>
+                <p>Line up four in a row to win</p>
                 <div class="button-container">
                     <a href="/connect4.html" class="game-btn">Play Now</a>
                 </div>
             </div>
+
             <div class="game-card">
                 <h2>Mancala</h2>
-                <p>Ancient board game of strategy. Collect more stones in your store than your opponent!</p>
+                <p>Ancient board game of strategy and counting</p>
                 <div class="button-container">
                     <a href="/mancala.html" class="game-btn">Play Now</a>
                 </div>
             </div>
+            
             <div class="game-card">
-                <h2>Word Hunt</h2>
-                <p>Find as many words as you can in the letter grid! Compete against your opponent in real-time.</p>
+                <h2>Word Search</h2>
+                <p>Find hidden words in a grid of letters</p>
                 <div class="button-container">
-                    <a href="/wordhunt.html" class="game-btn">Play Now</a>
+                    <a href="/wordsearch.html" class="game-btn">Play Now</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p> 2024 DeskDuels. Created by <a href="https://quz.ma" target="_blank" rel="noopener">Darko Kuzmanovic</a></p>
+            <div class="footer-links">
+                <a href="https://github.com/DarkoKuzmanovic" target="_blank" rel="noopener">GitHub</a>
+                <span class="separator">•</span>
+                <a href="mailto:darko@quz.ma">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script>
         // Theme toggle functionality
         const themeToggle = document.querySelector('.theme-toggle');

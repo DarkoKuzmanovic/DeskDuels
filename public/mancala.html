@@ -2,7 +2,10 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Multiplayer Mancala</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -43,11 +46,12 @@
             <div class="mancala store-a">0</div>
         </div>
 
+        <div id="player-info" class="player-info">
+            <span>You are: <span id="player-side">Spectator</span></span>
+        </div>
+
         <div class="button-container">
             <button id="leave-game" class="game-btn home-btn">Back to Home</button>
-            <div id="player-info" class="player-info">
-                <span>You are: <span id="player-side">Spectator</span></span>
-            </div>
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
