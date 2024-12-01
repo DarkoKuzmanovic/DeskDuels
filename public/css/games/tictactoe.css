@@ -1,0 +1,41 @@
+.tictactoe .board {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 400px;
+    display: grid;
+    gap: 0.75rem;
+    margin: 0 auto;
+    background-color: var(--board-bg);
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+}
+
+.tictactoe .cell {
+    aspect-ratio: 1;
+    background-color: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tictactoe .cell:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--primary-color);
+    background-color: var(--hover-bg);
+}
+
+.tictactoe .cell.x {
+    color: var(--player1-color);
+}
+
+.tictactoe .cell.o {
+    color: var(--player2-color);
+}

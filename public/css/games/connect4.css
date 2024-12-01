@@ -1,0 +1,42 @@
+.connect4 .board {
+    grid-template-columns: repeat(7, 1fr);
+    max-width: 700px;
+    display: grid;
+    gap: 0.75rem;
+    margin: 0 auto;
+    background-color: var(--board-bg);
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+}
+
+.connect4 .cell {
+    aspect-ratio: 1;
+    background-color: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.connect4 .cell:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.connect4 .cell.player1 {
+    background-color: var(--player1-color);
+    border-color: var(--player1-border);
+}
+
+.connect4 .cell.player2 {
+    background-color: var(--player2-color);
+    border-color: var(--player2-border);
+}
+
+.connect4 .cell.hover {
+    background-color: var(--hover-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}

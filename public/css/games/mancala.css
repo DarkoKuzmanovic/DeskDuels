@@ -1,0 +1,105 @@
+.container.mancala {
+    text-align: center;
+    padding: 1rem;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.mancala-board {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--board-bg);
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    margin: 1rem auto;
+    max-width: 100%;
+    gap: 0.5rem;
+}
+
+.pits-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 0.5rem;
+}
+
+.pits {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.2s ease;
+}
+
+.pit {
+    aspect-ratio: 1;
+    background-color: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: min(1rem, 3vw);
+    touch-action: manipulation;
+}
+
+.pit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    background-color: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+.mancala.store-a,
+.mancala.store-b {
+    width: clamp(50px, 15vw, 80px);
+    height: clamp(180px, 40vw, 280px);
+    border-radius: 1.5rem;
+    background-color: var(--surface);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    color: var(--text-primary);
+}
+
+/* Mobile-specific styles */
+@media (max-width: 600px) {
+    .container.mancala {
+        padding: 0.5rem;
+    }
+    
+    .mancala-board {
+        padding: 0.5rem;
+    }
+    
+    .pit {
+        padding: 0;
+    }
+    
+    .button-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+/* Add active state for touch devices */
+@media (hover: none) {
+    .pit:active {
+        transform: scale(0.95);
+        background-color: var(--hover-bg);
+        border-color: var(--primary-color);
+    }
+}
