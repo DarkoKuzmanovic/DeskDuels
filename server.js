@@ -9,6 +9,7 @@ app.use(express.static("public"));
 const tictactoeRooms = new Map();
 const connect4Rooms = new Map();
 const mancalaRooms = new Map();
+const wordHuntRooms = new Map();
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
@@ -45,6 +46,7 @@ io.on("connection", (socket) => {
       roomId: roomId,
       board: room.board,
       currentPlayer: room.currentPlayer,
+      waiting: room.players.length === 1
     });
 
     if (room.players.length === 2) {
@@ -99,7 +101,7 @@ io.on("connection", (socket) => {
         players: [],
         board: Array(6)
           .fill()
-          .map(() => Array(7).fill(null)),
+          .map(() => Array(7).fill('')),
         currentPlayer: "red",
       });
     }
@@ -114,6 +116,7 @@ io.on("connection", (socket) => {
       roomId: roomId,
       board: room.board,
       currentPlayer: room.currentPlayer,
+      waiting: room.players.length === 1
     });
 
     if (room.players.length === 2) {
@@ -322,6 +325,100 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Word Hunt game logic
+  socket.on("joinWordHunt", () => {
+    console.log("Player joining Word Hunt:", socket.id);
+    let roomId = null;
+
+    // Find an available room
+    for (const [id, room] of wordHuntRooms.entries()) {
+      if (room.players.length === 1) {
+        roomId = id;
+        console.log("Found existing room:", roomId);
+        break;
+      }
+    }
+
+    // Create new room if none available
+    if (!roomId) {
+      roomId = "wordhunt_" + Math.random().toString(36).substring(7);
+      console.log("Creating new room:", roomId);
+      wordHuntRooms.set(roomId, {
+        players: [],
+        letters: generateBoard(),
+        playerWords: new Map(),
+      });
+    }
+
+    const room = wordHuntRooms.get(roomId);
+    room.players.push(socket.id);
+    socket.join(roomId);
+    console.log(`Player ${socket.id} joined room ${roomId}. Players in room: ${room.players.length}`);
+
+    if (room.players.length === 2) {
+      console.log("Starting game in room:", roomId);
+      io.to(roomId).emit("gameStart", {
+        letters: room.letters
+      });
+    }
+  });
+
+  socket.on("submitWord", async (word) => {
+    // Find the room this socket is in
+    let currentRoom = null;
+    let roomId = null;
+
+    for (const [id, room] of wordHuntRooms.entries()) {
+      if (room.players.includes(socket.id)) {
+        currentRoom = room;
+        roomId = id;
+        break;
+      }
+    }
+
+    if (!currentRoom) return;
+
+    const playerIndex = currentRoom.players.indexOf(socket.id);
+  
+    // Validate the word
+    if (await isValidWord(word) && !currentRoom.playerWords.has(word)) {
+      currentRoom.playerWords.set(word, playerIndex);
+      
+      // Emit to all players, setting isOpponent based on each player's perspective
+      currentRoom.players.forEach((playerId, idx) => {
+        io.to(playerId).emit("wordAccepted", {
+          word: word,
+          isOpponent: idx !== playerIndex
+        });
+      });
+    }
+  });
+
+  socket.on("gameOver", () => {
+    // Find the room this socket is in
+    for (const [roomId, room] of wordHuntRooms.entries()) {
+      if (room.players.includes(socket.id)) {
+        // Calculate final scores
+        const scores = [0, 0];
+        room.playerWords.forEach((playerIndex, word) => {
+          const length = Math.min(word.length, 8);
+          const points = {
+            3: 1, 4: 1, 5: 2, 6: 3, 7: 5, 8: 11
+          }[length] || 11;
+          scores[playerIndex] += points;
+        });
+
+        io.to(roomId).emit("gameOver", {
+          playerScore: scores[0],
+          opponentScore: scores[1]
+        });
+        
+        wordHuntRooms.delete(roomId);
+        break;
+      }
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
 
@@ -347,6 +444,14 @@ io.on("connection", (socket) => {
       if (player) {
         io.to(roomId).emit("playerDisconnected");
         mancalaRooms.delete(roomId);
+      }
+    }
+
+    // Handle Word Hunt disconnection
+    for (const [roomId, room] of wordHuntRooms.entries()) {
+      if (room.players.includes(socket.id)) {
+        io.to(roomId).emit("playerDisconnected");
+        wordHuntRooms.delete(roomId);
       }
     }
   });
@@ -376,7 +481,7 @@ function checkTicTacToeWinner(board) {
 // Helper functions for Connect4
 function findLowestEmptyRow(board, column) {
   for (let row = 5; row >= 0; row--) {
-    if (board[row][column] === null) {
+    if (board[row][column] === '') {
       return row;
     }
   }
@@ -444,7 +549,7 @@ function checkConnect4Winner(board) {
 }
 
 function isConnect4BoardFull(board) {
-  return board[0].every((cell) => cell !== null);
+  return board[0].every((cell) => cell !== '');
 }
 
 // Helper function for Mancala
@@ -469,6 +574,47 @@ function checkMancalaGameOver(pits) {
   }
 
   return aSideEmpty || bSideEmpty;
+}
+
+// Helper function to generate the Word Hunt board
+function generateBoard() {
+  const board = [];
+  const dice = [
+    'AAEEGN', 'ABBJOO', 'ACHOPS', 'AFFKPS',
+    'AOOTTW', 'CIMOTU', 'DEILRX', 'DELRVY',
+    'DISTTY', 'EEGHNW', 'EEINSU', 'EHRTVW',
+    'EIOSST', 'ELRTTY', 'HIMNQU', 'HLNNRZ'
+  ];
+  
+  // Shuffle the dice
+  for (let i = dice.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [dice[i], dice[j]] = [dice[j], dice[i]];
+  }
+  
+  // Create 4x4 board
+  for (let i = 0; i < 4; i++) {
+    const row = [];
+    for (let j = 0; j < 4; j++) {
+      const die = dice[i * 4 + j];
+      const letter = die[Math.floor(Math.random() * 6)];
+      row.push(letter);
+    }
+    board.push(row);
+  }
+  
+  return board;
+}
+
+// Helper function to validate words using an API
+async function isValidWord(word) {
+  try {
+    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+    return response.ok;
+  } catch (error) {
+    console.error('Error validating word:', error);
+    return false;
+  }
 }
 
 const PORT = process.env.PORT || 3001;

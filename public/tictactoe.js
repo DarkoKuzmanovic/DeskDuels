@@ -1,5 +1,5 @@
 const socket = io();
-let playerNumber = null;
+let playerSymbol = null;
 let currentPlayer = null;
 let gameActive = false;
 let board = Array(9).fill(null);
@@ -13,9 +13,13 @@ const playAgainBtn = document.getElementById('playAgain');
 socket.emit('joinTicTacToe');
 
 socket.on('playerAssigned', (data) => {
-    playerNumber = data.playerNumber;
+    playerSymbol = data.symbol;  // 'X' or 'O'
     roomId = data.roomId;
-    status.textContent = playerNumber === 0 ? 'Waiting for opponent...' : 'Opponent found! Waiting for their move...';
+    if (data.waiting) {
+        status.textContent = 'Waiting for opponent...';
+    } else {
+        updateStatus();
+    }
 });
 
 socket.on('gameStart', (data) => {
@@ -38,7 +42,7 @@ socket.on('gameOver', ({ winner }) => {
     if (winner === 'draw') {
         status.textContent = "It's a draw!";
     } else {
-        status.textContent = winner === playerNumber ? 'You won!' : 'You lost!';
+        status.textContent = winner === playerSymbol ? 'You won!' : 'You lost!';
     }
     playAgainBtn.style.display = 'block';
 });
@@ -53,8 +57,8 @@ cells.forEach(cell => {
     cell.addEventListener('click', () => {
         const index = parseInt(cell.getAttribute('data-index'));
         
-        if (gameActive && currentPlayer === playerNumber && board[index] === null) {
-            socket.emit('makeMove', {
+        if (gameActive && currentPlayer === playerSymbol && board[index] === null) {
+            socket.emit('tictactoeMove', {
                 roomId,
                 position: index
             });
@@ -68,12 +72,15 @@ playAgainBtn.addEventListener('click', () => {
 
 function updateBoard() {
     cells.forEach((cell, index) => {
-        cell.textContent = board[index] === null ? '' : board[index] === 0 ? 'X' : 'O';
+        cell.textContent = board[index] || '';
     });
 }
 
 function updateStatus() {
-    if (currentPlayer === playerNumber) {
+    if (!gameActive) {
+        return;
+    }
+    if (currentPlayer === playerSymbol) {
         status.textContent = 'Your turn';
     } else {
         status.textContent = "Opponent's turn";

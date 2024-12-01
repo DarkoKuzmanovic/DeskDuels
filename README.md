@@ -17,6 +17,8 @@ A collection of quick multiplayer games perfect for work breaks, built with Node
 
 - Tic-tac-toe: The classic game of X's and O's
 - Connect 4: Strategic four-in-a-row game
+- Mancala: Ancient board game of strategy and counting
+- Word Hunt: Fast-paced word finding game (IN DEVELOPMENT)
 
 More games are currently in development! Stay tuned for updates.
 
@@ -44,13 +46,6 @@ More games are currently in development! Stay tuned for updates.
     ```
 
 2. Open your browser and navigate to `http://localhost:3000`
-
-## How to Play
-
-1. Wait for another player to join
-2. Players take turns placing their marks (X or O) on the board
-3. First player to get 3 in a row (horizontally, vertically, or diagonally) wins
-4. If all cells are filled and no winner, the game is a draw
 
 ## Technologies Used
 
