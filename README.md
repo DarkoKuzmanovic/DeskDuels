@@ -45,7 +45,7 @@ More games are currently in development! Stay tuned for updates.
     npm start
     ```
 
-2. Open your browser and navigate to `http://localhost:3000`
+2. Open your browser and navigate to `http://localhost:3001`
 
 ## Technologies Used
 

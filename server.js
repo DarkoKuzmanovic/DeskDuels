@@ -233,23 +233,21 @@ io.on("connection", (socket) => {
 
     // Distribute stones counterclockwise
     while (stones > 0) {
-      // Calculate next pit in counterclockwise direction
-      if (lastPitIndex >= 0 && lastPitIndex <= 5) {
-        // Moving right in bottom row (Player A)
+      // Calculate next pit based on current position
+      if (lastPitIndex >= 0 && lastPitIndex < 6) {
+        // Moving right in bottom row (A's side)
         lastPitIndex++;
       } else if (lastPitIndex === 6) {
-        // From A's store to top row
-        lastPitIndex = 12;  // Start from rightmost top pit
-      } else if (lastPitIndex >= 7 && lastPitIndex <= 12) {
-        // Moving left in top row (Player B)
-        if (lastPitIndex === 7 && player.side === "B") {
-          // If we're at pit 7 and it's Player B, next is their store
-          lastPitIndex = 13;
-        } else {
-          lastPitIndex--;
-        }
+        // From A's store to rightmost top pit
+        lastPitIndex = 12;
+      } else if (lastPitIndex > 7 && lastPitIndex <= 12) {
+        // Moving left in top row (B's side)
+        lastPitIndex--;
+      } else if (lastPitIndex === 7) {
+        // From leftmost top pit to B's store
+        lastPitIndex = 13;
       } else if (lastPitIndex === 13) {
-        // From B's store to bottom row
+        // From B's store to leftmost bottom pit
         lastPitIndex = 0;
       }
 
@@ -259,43 +257,36 @@ io.on("connection", (socket) => {
         continue;
       }
 
-      console.log(`Placing stone in pit ${lastPitIndex}`);
-      // Add stone to the pit and decrement stones
+      // Add stone to the pit
       currentRoom.pits[lastPitIndex]++;
       stones--;
     }
 
     // Check for capture
     if (currentRoom.pits[lastPitIndex] === 1) {
-        console.log(`Last stone landed in pit ${lastPitIndex} with 1 stone`);
-        const isPlayerSide = (player.side === "A" && lastPitIndex >= 0 && lastPitIndex <= 5) ||
-                          (player.side === "B" && lastPitIndex >= 7 && lastPitIndex <= 12);
-        const isEmptyBeforeMove = currentRoom.pits[lastPitIndex] === 1; // Since we just added 1 stone
-        console.log(`Is player side: ${isPlayerSide}, Player: ${player.side}`);
-        
-        if (isPlayerSide && isEmptyBeforeMove) {
-            // Calculate opposite index for where the stone landed
-            let oppositeIndex;
-            if (lastPitIndex >= 0 && lastPitIndex <= 5) {
-                // For bottom row (0-5), opposite is (7-12)
-                oppositeIndex = 7 + lastPitIndex;
-            } else {
-                // For top row (7-12), opposite is (0-5)
-                oppositeIndex = lastPitIndex - 7;
-            }
-            
-            console.log(`Checking capture: Last pit ${lastPitIndex}, opposite pit ${oppositeIndex}`);
-            console.log(`Stones in opposite pit: ${currentRoom.pits[oppositeIndex]}`);
-            
-            if (currentRoom.pits[oppositeIndex] > 0) {
-                const playerStore = player.side === "A" ? 6 : 13;
-                const capturedStones = currentRoom.pits[oppositeIndex] + 1; // Include the capturing stone
-                currentRoom.pits[playerStore] += capturedStones;
-                currentRoom.pits[oppositeIndex] = 0;
-                currentRoom.pits[lastPitIndex] = 0;
-                console.log(`Captured ${capturedStones} stones to store ${playerStore}`);
-            }
+      const isPlayerSide = (player.side === "A" && lastPitIndex >= 0 && lastPitIndex <= 5) ||
+                        (player.side === "B" && lastPitIndex >= 7 && lastPitIndex <= 12);
+      const isEmptyBeforeMove = currentRoom.pits[lastPitIndex] === 1; // Since we just added 1 stone
+      
+      if (isPlayerSide && isEmptyBeforeMove) {
+        // Calculate opposite index for where the stone landed
+        let oppositeIndex;
+        if (lastPitIndex >= 0 && lastPitIndex <= 5) {
+          // For bottom row (0-5), opposite is (7-12)
+          oppositeIndex = 7 + lastPitIndex;
+        } else {
+          // For top row (7-12), opposite is (0-5)
+          oppositeIndex = lastPitIndex - 7;
         }
+        
+        if (currentRoom.pits[oppositeIndex] > 0) {
+          const playerStore = player.side === "A" ? 6 : 13;
+          const capturedStones = currentRoom.pits[oppositeIndex] + 1; // Include the capturing stone
+          currentRoom.pits[playerStore] += capturedStones;
+          currentRoom.pits[oppositeIndex] = 0;
+          currentRoom.pits[lastPitIndex] = 0;
+        }
+      }
     }
 
     // Check if game is over
