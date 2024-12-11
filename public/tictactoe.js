@@ -2,19 +2,44 @@ const socket = io();
 let playerSymbol = null;
 let currentPlayer = null;
 let gameActive = false;
-let board = Array(9).fill(null);
+let board = []; // Initialize as an empty array
+let boardSize = 3; // Default board size
 let roomId = null;
 
-const cells = document.querySelectorAll('.cell');
 const status = document.getElementById('status');
 const playAgainBtn = document.getElementById('playAgain');
+const boardContainer = document.getElementById('board');
+
+// Function to create the board dynamically
+function createBoard(size) {
+    boardSize = size;
+    board = Array(size * size).fill(null); // Initialize board array
+    boardContainer.innerHTML = ''; // Clear existing board
+
+    // Create the grid cells
+    for (let i = 0; i < size * size; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.setAttribute('data-index', i);
+        cell.addEventListener('click', () => {
+            if (gameActive && currentPlayer === playerSymbol && board[i] === null) {
+                socket.emit('tictactoeMove', {
+                    roomId,
+                    position: i
+                });
+            }
+        });
+        boardContainer.appendChild(cell);
+    }
+}
 
 // Join game when page loads
 socket.emit('joinTicTacToe');
 
 socket.on('playerAssigned', (data) => {
-    playerSymbol = data.symbol;  // 'X' or 'O'
+    playerSymbol = data.symbol;
     roomId = data.roomId;
+    createBoard(3); // Create a 3x3 board by default
     if (data.waiting) {
         status.textContent = 'Waiting for opponent...';
     } else {
@@ -53,24 +78,33 @@ socket.on('playerDisconnected', () => {
     playAgainBtn.style.display = 'block';
 });
 
-cells.forEach(cell => {
-    cell.addEventListener('click', () => {
-        const index = parseInt(cell.getAttribute('data-index'));
-        
-        if (gameActive && currentPlayer === playerSymbol && board[index] === null) {
-            socket.emit('tictactoeMove', {
-                roomId,
-                position: index
-            });
-        }
-    });
+// Update the socket listener for opponent rematch request
+socket.on('opponentWantsRematch', () => {
+    if (!gameActive) {  // Only show if game is not active
+        status.textContent = 'Opponent wants to play again!';
+        playAgainBtn.style.display = 'block';
+    }
 });
+
+// Update the resetGame function
+function resetGame() {
+    // Clear the board immediately for visual feedback
+    board = Array(boardSize * boardSize).fill(null);
+    updateBoard();
+
+    // Send reset request to server
+    socket.emit('requestNewTicTacToeGame', { roomId });
+    playAgainBtn.style.display = 'none';
+    status.textContent = 'Waiting for opponent...';
+}
 
 playAgainBtn.addEventListener('click', () => {
-    window.location.href = 'index.html';
+    resetGame();
 });
 
+// Efficient board update
 function updateBoard() {
+    const cells = document.querySelectorAll('.cell');
     cells.forEach((cell, index) => {
         cell.textContent = board[index] || '';
     });

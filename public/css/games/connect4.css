@@ -18,25 +18,57 @@
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
 .connect4 .cell:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 .connect4 .cell.player1 {
     background-color: var(--player1-color);
     border-color: var(--player1-border);
+    color: var(--player1-color);
 }
 
 .connect4 .cell.player2 {
     background-color: var(--player2-color);
     border-color: var(--player2-border);
+    color: var(--player2-color);
 }
 
 .connect4 .cell.hover {
-    background-color: var(--hover-bg);
+    background-color: var(--surface);
     transform: translateY(-2px);
     box-shadow: var(--shadow);
+}
+
+.connect4 .cell.hover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: currentColor;
+    opacity: 0.2;
+    border-radius: 50%;
+}
+
+.connect4 .cell.player1,
+.connect4 .cell.player2 {
+    animation: dropPiece 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes dropPiece {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
