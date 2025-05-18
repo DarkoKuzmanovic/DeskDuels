@@ -1,0 +1,65 @@
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f0f0f0;
+}
+
+.game-container {
+  display: grid;
+  grid-template-columns: repeat(10, auto); /* 10 columns, auto-sized */
+  grid-gap: 8px; /* Slightly reduced gap for more cards */
+  perspective: 1000px; /* For 3D flip effect */
+  max-width: 90vw; /* Max width to prevent it from being too wide */
+  /* You might want to adjust card sizes below if they become too small/large */
+}
+
+/* Basic card styling - we can expand on this later */
+.card {
+  width: 80px; /* Adjusted card size for more cards */
+  height: 80px; /* Adjusted card size for more cards */
+  background-color: #fff;
+  border: 2px solid #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+.card .front-face,
+.card .back-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card .front-face {
+  background-color: lightblue; /* Placeholder for card content */
+}
+
+.card .back-face {
+  background-color: #666; /* Card back color */
+  transform: rotateY(180deg);
+  color: white;
+}
+
+/* Style for matched cards */
+.card.matched {
+  border-color: green;
+  cursor: default;
+  /* Optionally, keep them flipped or hide them */
+}

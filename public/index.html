@@ -1,103 +1,134 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Desk Duels</title>
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/components.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+  </head>
+  <body>
     <button class="theme-toggle" aria-label="Toggle theme">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="theme-light-icon">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="theme-dark-icon" style="display: none;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-        </svg>
-        <span class="theme-text">Toggle Theme</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        class="theme-light-icon"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+        />
+      </svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        class="theme-dark-icon"
+        style="display: none"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+        />
+      </svg>
+      <span class="theme-text">Toggle Theme</span>
     </button>
     <div class="container">
-        <h1>Welcome to Desk Duels</h1>
-        <p class="status">Choose a game to play</p>
-        
-        <div class="games-grid">
-            <div class="game-card">
-                <h2>Tic Tac Toe</h2>
-                <p>Classic game of X's and O's</p>
-                <div class="button-container">
-                    <a href="/tictactoe.html" class="game-btn">Play Now</a>
-                </div>
-            </div>
-            
-            <div class="game-card">
-                <h2>Connect 4</h2>
-                <p>Line up four in a row to win</p>
-                <div class="button-container">
-                    <a href="/connect4.html" class="game-btn">Play Now</a>
-                </div>
-            </div>
+      <h1>Welcome to Desk Duels</h1>
+      <p class="status">Choose a game to play</p>
 
-            <div class="game-card">
-                <h2>Mancala</h2>
-                <p>Ancient board game of strategy and counting</p>
-                <div class="button-container">
-                    <a href="/mancala.html" class="game-btn">Play Now</a>
-                </div>
-            </div>
-            
-            <div class="game-card">
-                <h2>Word Hunt</h2>
-                <p>Find hidden words in a grid of letters</p>
-                <div class="button-container">
-                    <a href="/wordhunt.html" class="game-btn">Play Now</a>
-                </div>
-            </div>
+      <div class="games-grid">
+        <div class="game-card">
+          <h2>Tic Tac Toe</h2>
+          <p>Classic game of X's and O's</p>
+          <div class="button-container">
+            <a href="/tictactoe.html" class="game-btn">Play Now</a>
+          </div>
         </div>
+
+        <div class="game-card">
+          <h2>Connect 4</h2>
+          <p>Line up four in a row to win</p>
+          <div class="button-container">
+            <a href="/connect4.html" class="game-btn">Play Now</a>
+          </div>
+        </div>
+
+        <div class="game-card">
+          <h2>Mancala</h2>
+          <p>Ancient board game of strategy and counting</p>
+          <div class="button-container">
+            <a href="/mancala.html" class="game-btn">Play Now</a>
+          </div>
+        </div>
+
+        <div class="game-card">
+          <h2>Word Hunt</h2>
+          <p>Find hidden words in a grid of letters</p>
+          <div class="button-container">
+            <a href="/wordhunt.html" class="game-btn">Play Now</a>
+          </div>
+        </div>
+
+        <div class="game-card">
+          <h2>Memory Game</h2>
+          <p>Test your memory by matching pairs of cards</p>
+          <div class="button-container">
+            <a href="/memory-game.html" class="game-btn">Play Now</a>
+          </div>
+        </div>
+      </div>
     </div>
 
     <footer class="footer">
-        <div class="footer-content">
-            <p> 2024 DeskDuels. Created by <a href="https://quz.ma" target="_blank" rel="noopener">Darko Kuzmanovic</a></p>
-            <div class="footer-links">
-                <a href="https://github.com/DarkoKuzmanovic" target="_blank" rel="noopener">GitHub</a>
-                <span class="separator">•</span>
-                <a href="mailto:darko@quz.ma">Contact</a>
-            </div>
+      <div class="footer-content">
+        <p>2024 DeskDuels. Created by <a href="https://quz.ma" target="_blank" rel="noopener">Darko Kuzmanovic</a></p>
+        <div class="footer-links">
+          <a href="https://github.com/DarkoKuzmanovic" target="_blank" rel="noopener">GitHub</a>
+          <span class="separator">•</span>
+          <a href="mailto:darko@quz.ma">Contact</a>
         </div>
+      </div>
     </footer>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Theme toggle functionality
-        const themeToggle = document.querySelector('.theme-toggle');
-        const lightIcon = document.querySelector('.theme-light-icon');
-        const darkIcon = document.querySelector('.theme-dark-icon');
-        const html = document.documentElement;
+      // Theme toggle functionality
+      const themeToggle = document.querySelector(".theme-toggle");
+      const lightIcon = document.querySelector(".theme-light-icon");
+      const darkIcon = document.querySelector(".theme-dark-icon");
+      const html = document.documentElement;
 
-        // Check for saved theme preference
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        html.setAttribute('data-theme', savedTheme);
-        updateThemeIcons(savedTheme);
+      // Check for saved theme preference
+      const savedTheme = localStorage.getItem("theme") || "light";
+      html.setAttribute("data-theme", savedTheme);
+      updateThemeIcons(savedTheme);
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcons(newTheme);
-        });
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = html.getAttribute("data-theme");
+        const newTheme = currentTheme === "light" ? "dark" : "light";
 
-        function updateThemeIcons(theme) {
-            if (theme === 'dark') {
-                lightIcon.style.display = 'none';
-                darkIcon.style.display = 'block';
-            } else {
-                lightIcon.style.display = 'block';
-                darkIcon.style.display = 'none';
-            }
+        html.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        updateThemeIcons(newTheme);
+      });
+
+      function updateThemeIcons(theme) {
+        if (theme === "dark") {
+          lightIcon.style.display = "none";
+          darkIcon.style.display = "block";
+        } else {
+          lightIcon.style.display = "block";
+          darkIcon.style.display = "none";
         }
+      }
     </script>
-</body>
+  </body>
 </html>
