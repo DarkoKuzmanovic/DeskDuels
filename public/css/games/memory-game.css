@@ -1,35 +1,72 @@
+/* Inherits from base.css and components.css */
+
+/* Specific styles for the Memory Game page */
 body {
-  font-family: Arial, sans-serif;
+  /* font-family is inherited from base.css */
+  background-color: var(--background);
+  color: var(--text-primary);
+  /* display: flex, justify-content, align-items, height, margin are handled by .container or page structure */
+}
+
+.game-page-container h1 {
+  /* Styling for h1 is largely inherited from base.css */
+  margin-bottom: 1rem; /* Adjusted from base.css if needed for this page */
+}
+
+#game-status {
+  /* .status class styling is inherited from base.css */
+  min-height: 1.5em; /* Ensure it takes space even when empty */
+  margin-bottom: 1.5rem; /* Consistent spacing */
+}
+
+.game-info-bar {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  height: 100vh;
-  margin: 0;
-  background-color: #f0f0f0;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--surface);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.score-display,
+.turn-display {
+  color: var(--text-primary);
+}
+
+.turn-display.my-turn {
+  color: var(--secondary-color); /* Highlight when it's your turn */
+  font-weight: bold;
 }
 
 .game-container {
   display: grid;
-  grid-template-columns: repeat(10, auto); /* 10 columns, auto-sized */
-  grid-gap: 8px; /* Slightly reduced gap for more cards */
-  perspective: 1000px; /* For 3D flip effect */
+  grid-template-columns: repeat(10, auto); /* 10 columns for 60 cards (30 pairs) */
+  grid-gap: 8px;
+  perspective: 1000px;
   max-width: 90vw; /* Max width to prevent it from being too wide */
-  /* You might want to adjust card sizes below if they become too small/large */
+  margin: 0 auto; /* Center the grid if it's narrower than max-width */
+  padding: 1rem;
+  background-color: var(--surface); /* Use surface color for the board area background */
+  border-radius: 0.75rem; /* Consistent with .game-card from components.css */
+  box-shadow: var(--shadow-lg); /* Consistent shadow */
 }
 
-/* Basic card styling - we can expand on this later */
 .card {
-  width: 80px; /* Adjusted card size for more cards */
-  height: 80px; /* Adjusted card size for more cards */
-  background-color: #fff;
-  border: 2px solid #333;
-  display: flex;
+  width: auto; /* Let the grid and aspect ratio control this */
+  aspect-ratio: 1 / 1; /* Maintain square cards */
+  min-width: 50px; /* Minimum size for smaller screens */
+  background-color: transparent; /* The faces will have color */
+  border: none; /* Remove previous border, faces can have styled borders if needed */
+  display: flex; /* Already there, ensure it's kept if needed for content alignment */
   justify-content: center;
   align-items: center;
-  font-size: 24px;
   cursor: pointer;
   transform-style: preserve-3d;
-  transition: transform 0.6s;
+  transition: transform 0.6s ease;
+  border-radius: 0.375rem; /* Slightly smaller radius for cards within the container */
 }
 
 .card.flipped {
@@ -45,21 +82,63 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: inherit; /* Inherit border-radius from .card */
+  overflow: hidden; /* To ensure background image respects border-radius */
+  box-shadow: var(--shadow-sm); /* Subtle shadow on card faces */
 }
 
 .card .front-face {
-  background-color: lightblue; /* Placeholder for card content */
+  background-color: var(--surface); /* Image will be on top of this */
+  transform: rotateY(180deg);
+  z-index: 2; /* Ensure front face is "on top" */
+  /* background-image is set by JS */
+  background-size: cover;
+  background-position: center;
 }
 
 .card .back-face {
-  background-color: #666; /* Card back color */
-  transform: rotateY(180deg);
-  color: white;
+  background-color: var(--primary-color); /* Theme's primary color for card back */
+  color: white; /* Assuming primary color is dark enough for white text */
+  font-size: 2em; /* Make the '?' or symbol larger */
+  font-weight: bold;
+  z-index: 1; /* Ensure back face is "behind" front face */
 }
 
-/* Style for matched cards */
 .card.matched {
-  border-color: green;
   cursor: default;
-  /* Optionally, keep them flipped or hide them */
+  opacity: 0.7; /* Slightly fade matched cards */
+}
+
+.card.matched .front-face {
+  /* Optionally add a border or overlay to matched cards */
+  box-shadow: 0 0 0 3px var(--secondary-color) inset;
+}
+
+/* Responsive adjustments for the grid */
+@media (max-width: 900px) {
+  .game-container {
+    grid-template-columns: repeat(8, auto);
+    grid-gap: 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  .game-container {
+    grid-template-columns: repeat(6, auto);
+    grid-gap: 5px;
+    padding: 0.5rem;
+  }
+  .card .back-face {
+    font-size: 1.5em;
+  }
+}
+
+@media (max-width: 400px) {
+  .game-container {
+    grid-template-columns: repeat(5, auto);
+    grid-gap: 4px;
+  }
+  .card .back-face {
+    font-size: 1.2em;
+  }
 }

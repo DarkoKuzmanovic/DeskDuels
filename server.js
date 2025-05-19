@@ -11,6 +11,50 @@ const connect4Rooms = new Map();
 const mancalaRooms = new Map();
 const wordHuntRooms = new Map();
 const tictactoePlayerRooms = new Map();
+const memoryGameRooms = new Map(); // For Memory Game
+const memoryGamePlayerRooms = new Map(); // Tracks which room a memory game player is in
+
+// Define the card values for the Memory Game (these are your 30 unique image names)
+const baseMemoryCardValues = [
+  "bela_roda",
+  "beloglavi-sup",
+  "buljina",
+  "crvendać",
+  "ćuk",
+  "dugorepa_senica",
+  "gačac",
+  "gak",
+  "grlica",
+  "kobac",
+  "kos",
+  "kukuvija",
+  "modrovrana",
+  "obična_crvenrepka",
+  "pčelarica",
+  "plava_senica",
+  "pupavac",
+  "siva_čaplja",
+  "strnadica_žutovoljka",
+  "suri_orao",
+  "svraka",
+  "veliki_detlić",
+  "veliki_tetreb",
+  "vetruška",
+  "vivak",
+  "vodomar",
+  "vrabac",
+  "vuga",
+  "zeba",
+  "zviždara",
+];
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
@@ -546,6 +590,186 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Memory Game Logic
+  socket.on("joinMemoryGame", () => {
+    let roomId = null;
+
+    // Find an available room
+    for (const [id, room] of memoryGameRooms.entries()) {
+      if (room.players.length === 1) {
+        roomId = id;
+        break;
+      }
+    }
+
+    if (!roomId) {
+      roomId = "memorygame_" + Math.random().toString(36).substring(7);
+      const pairedCards = [...baseMemoryCardValues, ...baseMemoryCardValues];
+      const shuffledPairedCards = shuffleArray(pairedCards);
+
+      const initialBoard = shuffledPairedCards.map((value, index) => ({
+        id: index, // Unique ID for each card DOM element
+        value: value,
+        isFlipped: false,
+        isMatched: false,
+      }));
+
+      memoryGameRooms.set(roomId, {
+        players: [], // Array of socket IDs
+        playerDetails: {}, // { socketId: { playerNum: 1 or 2 } }
+        board: initialBoard,
+        currentPlayer: null, // socket.id of the current player
+        flippedCardIndices: [], // Store indices of currently flipped cards in a turn
+        scores: { player1: 0, player2: 0 },
+        playAgainRequests: new Set(),
+      });
+    }
+
+    const room = memoryGameRooms.get(roomId);
+    const playerNum = room.players.length === 0 ? 1 : 2;
+    room.players.push(socket.id);
+    room.playerDetails[socket.id] = { playerNum };
+
+    memoryGamePlayerRooms.set(socket.id, roomId);
+    socket.join(roomId);
+
+    socket.emit("memoryPlayerAssigned", {
+      roomId: roomId,
+      playerNum: playerNum,
+      board: room.board.map((card) => ({ id: card.id, isFlipped: card.isFlipped, isMatched: card.isMatched })), // Send only necessary info initially
+      waiting: room.players.length === 1,
+    });
+
+    if (room.players.length === 2) {
+      // Second player joined, start the game
+      room.currentPlayer = room.players[0]; // Player 1 starts
+      io.to(roomId).emit("memoryGameStart", {
+        board: room.board.map((card) => ({ id: card.id, isFlipped: card.isFlipped, isMatched: card.isMatched })),
+        currentPlayer: room.currentPlayer,
+        scores: room.scores,
+      });
+      // Notify players of their numbers and who starts
+      room.players.forEach((playerId) => {
+        io.to(playerId).emit("memoryPlayerRoles", {
+          playerNum: room.playerDetails[playerId].playerNum,
+          opponentId: room.players.find((id) => id !== playerId),
+        });
+      });
+    }
+  });
+
+  // Placeholder for card flip logic
+  socket.on("memoryFlipCard", ({ roomId, cardId }) => {
+    const room = memoryGameRooms.get(roomId);
+    if (!room || room.currentPlayer !== socket.id || room.flippedCardIndices.length >= 2) {
+      // Invalid move or not current player's turn or already 2 cards flipped
+      return;
+    }
+
+    const cardIndex = room.board.findIndex((c) => c.id === cardId);
+    if (cardIndex === -1 || room.board[cardIndex].isFlipped || room.board[cardIndex].isMatched) {
+      // Card not found, or already flipped/matched
+      return;
+    }
+
+    // Mark card as flipped (server state)
+    room.board[cardIndex].isFlipped = true;
+    room.flippedCardIndices.push(cardIndex);
+
+    // Notify clients that a card has been flipped
+    // Send the actual value only when it's flipped, not in the initial board load
+    io.to(roomId).emit("memoryCardFlipped", {
+      cardId: cardId,
+      cardValue: room.board[cardIndex].value,
+      flippedBy: socket.id,
+    });
+
+    // Check for match if two cards are now flipped
+    if (room.flippedCardIndices.length === 2) {
+      const [index1, index2] = room.flippedCardIndices;
+      const card1 = room.board[index1];
+      const card2 = room.board[index2];
+
+      if (card1.value === card2.value) {
+        // Match!
+        card1.isMatched = true;
+        card2.isMatched = true;
+
+        const playerDetails = room.playerDetails[socket.id];
+        if (playerDetails) {
+          if (playerDetails.playerNum === 1) room.scores.player1++;
+          else room.scores.player2++;
+        }
+
+        io.to(roomId).emit("memoryMatchFound", {
+          matchedCardIds: [card1.id, card2.id],
+          scores: room.scores,
+          currentPlayer: room.currentPlayer, // Current player continues if they made a match
+        });
+
+        // Check for game over
+        const allMatched = room.board.every((c) => c.isMatched);
+        if (allMatched) {
+          io.to(roomId).emit("memoryGameOver", { scores: room.scores });
+          // Don't delete room immediately, allow for rematch
+        }
+      } else {
+        // No match
+        // Clients will handle flipping back visually after a short delay
+        // Server just needs to reset its state after a delay that client also respects
+        // No, server should tell clients to flip back.
+        setTimeout(() => {
+          room.board[index1].isFlipped = false;
+          room.board[index2].isFlipped = false;
+          io.to(roomId).emit("memoryNoMatch", {
+            cardId1: card1.id,
+            cardId2: card2.id,
+          });
+          // Switch player
+          const currentPlayerIndex = room.players.indexOf(room.currentPlayer);
+          room.currentPlayer = room.players[(currentPlayerIndex + 1) % 2];
+          io.to(roomId).emit("memoryTurnUpdate", { currentPlayer: room.currentPlayer });
+        }, 1200); // Delay for players to see the cards
+      }
+      room.flippedCardIndices = []; // Reset for the next turn or next pair attempt
+    }
+  });
+
+  socket.on("requestNewMemoryGame", ({ roomId }) => {
+    const room = memoryGameRooms.get(roomId);
+    if (!room) return;
+
+    room.playAgainRequests.add(socket.id);
+
+    if (room.playAgainRequests.size === 2) {
+      // Reset game state
+      const pairedCards = [...baseMemoryCardValues, ...baseMemoryCardValues];
+      const shuffledPairedCards = shuffleArray(pairedCards);
+      room.board = shuffledPairedCards.map((value, index) => ({
+        id: index,
+        value: value,
+        isFlipped: false,
+        isMatched: false,
+      }));
+      room.scores = { player1: 0, player2: 0 };
+      room.flippedCardIndices = [];
+      room.currentPlayer = room.players[0]; // Player 1 (first to join) starts again
+      room.playAgainRequests.clear();
+
+      io.to(roomId).emit("memoryGameStart", {
+        board: room.board.map((card) => ({ id: card.id, isFlipped: card.isFlipped, isMatched: card.isMatched })),
+        currentPlayer: room.currentPlayer,
+        scores: room.scores,
+      });
+    } else {
+      // Notify the other player
+      const opponentId = room.players.find((id) => id !== socket.id);
+      if (opponentId) {
+        io.to(opponentId).emit("opponentWantsMemoryRematch");
+      }
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
 
@@ -600,6 +824,26 @@ io.on("connection", (socket) => {
           wordHuntRooms.delete(roomId);
         } else {
           io.to(roomId).emit("playerDisconnected");
+        }
+      }
+    }
+
+    // Handle Memory Game disconnection
+    const memoryRoomId = memoryGamePlayerRooms.get(socket.id);
+    if (memoryRoomId) {
+      const room = memoryGameRooms.get(memoryRoomId);
+      if (room) {
+        room.players = room.players.filter((playerId) => playerId !== socket.id);
+        delete room.playerDetails[socket.id];
+        memoryGamePlayerRooms.delete(socket.id);
+
+        if (room.players.length < 2 && room.players.length > 0) {
+          // If one player remains
+          io.to(memoryRoomId).emit("opponentDisconnectedMemory");
+          // Optionally, clean up room if you don't want single players waiting indefinitely
+          memoryGameRooms.delete(memoryRoomId); // Or mark as waiting
+        } else if (room.players.length === 0) {
+          memoryGameRooms.delete(memoryRoomId);
         }
       }
     }
