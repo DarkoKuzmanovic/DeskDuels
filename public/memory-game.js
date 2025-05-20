@@ -1,4 +1,49 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize sound effects
+  const sounds = {
+    flip: new Audio("sounds/memory-game-res/flipcard.mp3"),
+    correct: new Audio("sounds/memory-game-res/correct.mp3"),
+    incorrect: new Audio("sounds/memory-game-res/incorrect.mp3"),
+  };
+
+  // Sound toggle functionality
+  const soundToggle = document.querySelector(".sound-toggle");
+  const soundOnIcon = document.querySelector(".sound-on-icon");
+  const soundOffIcon = document.querySelector(".sound-off-icon");
+  let isSoundMuted = localStorage.getItem("soundMuted") === "true";
+
+  // Update sound icons based on mute state
+  function updateSoundIcons(muted) {
+    if (muted) {
+      soundOnIcon.style.display = "none";
+      soundOffIcon.style.display = "block";
+    } else {
+      soundOnIcon.style.display = "block";
+      soundOffIcon.style.display = "none";
+    }
+  }
+
+  // Initialize sound state
+  updateSoundIcons(isSoundMuted);
+
+  // Sound toggle click handler
+  soundToggle.addEventListener("click", () => {
+    isSoundMuted = !isSoundMuted;
+    localStorage.setItem("soundMuted", isSoundMuted);
+    updateSoundIcons(isSoundMuted);
+  });
+
+  // Function to play sound with error handling
+  function playSound(soundName) {
+    if (isSoundMuted) return; // Don't play if muted
+    try {
+      sounds[soundName].currentTime = 0; // Reset sound to start
+      sounds[soundName].play().catch((err) => console.log("Sound play failed:", err));
+    } catch (err) {
+      console.log("Error playing sound:", err);
+    }
+  }
+
   const socket = io();
   let roomId = null;
   let myPlayerNum = null;
@@ -51,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const backFace = document.createElement("div");
       backFace.classList.add("back-face");
-      backFace.textContent = "?";
+      // No text content needed for back face since we're using an image
 
       cardElement.appendChild(frontFace);
       cardElement.appendChild(backFace);
@@ -132,6 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       frontFace.style.backgroundImage = `url('${imagePath}${data.cardValue}.png')`;
       cardElement.classList.add("flipped");
+      playSound("flip"); // Play flip sound
     }
     gameStatusElement.textContent = "Card flipped...";
   });
@@ -142,6 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (card1Element && card2Element) {
       card1Element.classList.add("matched");
       card2Element.classList.add("matched");
+      playSound("correct"); // Play correct match sound
     }
     updateScores(data.scores);
     currentPlayerId = data.currentPlayer; // Current player might continue if they got a match
@@ -153,6 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const card1Element = document.querySelector(`.card[data-id='${data.cardId1}']`);
     const card2Element = document.querySelector(`.card[data-id='${data.cardId2}']`);
     gameStatusElement.textContent = "No match. Flipping back...";
+    playSound("incorrect"); // Play incorrect match sound
     setTimeout(() => {
       if (card1Element) card1Element.classList.remove("flipped");
       if (card2Element) card2Element.classList.remove("flipped");
